@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["FastType"],"fn":["fast"],"struct":["FastContext","FastKeypoint","Moment"]};
