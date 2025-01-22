@@ -15,7 +15,7 @@ opt-level = 3
 
 [dependencies]
 image = "0.25.5"
-imageproc = "*"
+imageproc = "0.25.0"
 rand = "0.8.5"
 bitvector = "0.1.5"
 cgmath = "0.18.0"
