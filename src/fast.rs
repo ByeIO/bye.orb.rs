@@ -142,3 +142,80 @@ pub struct Moment {
     pub moment: Point, // 矩
     pub rotation: f64 // 旋转角度
 }
+
+fn patch_moment(img: &GrayImage, x:u32, y:u32, x_moment:u32, y_moment:u32, radius:Option<u32>) -> f64 {
+    let radius = radius.unwrap_or(5);
+
+    if x < radius || y < radius || x + radius >= img.width() || y + radius >= img.height() {
+        return 1.0;
+    }
+
+    let mut patch_sum:u32 = 0;
+    for mx in (x-radius)..=(x+radius) {
+        for my in (y-radius)..=(y+radius) {
+            let coefficient = match (x_moment, y_moment) {
+                (0, 0) => 1,
+                (0, 1) => my,
+                (1, 0) => mx,
+                _ => 0
+            };
+            patch_sum += coefficient * img.get_pixel(mx, my).0[0] as u32;
+        }
+    }
+
+    patch_sum as f64
+}
+
+fn moment_centroid(img: &GrayImage, point: &Point, moment_radius:Option<u32>) -> Moment {
+    let p_m = patch_moment(img, point.0 as u32, point.1 as u32, 0, 0, moment_radius);
+    let p_x = patch_moment(img, point.0 as u32, point.1 as u32, 1, 0, moment_radius);
+    let p_y = patch_moment(img, point.0 as u32, point.1 as u32, 0, 1, moment_radius);
+
+    let (mx, my) = (
+        (p_x/p_m),
+        (p_y/p_m)
+    );
+
+    let x_diff = (point.0 as f64 - mx) as f64;
+    let y_diff = (point.1 as f64 - my) as f64;
+
+    Moment {
+        centroid: point.clone(),
+        moment: (mx.round() as i32, my.round() as i32),
+        rotation: y_diff.atan2(x_diff)
+    }
+}
+
+pub fn draw_moments(img: &mut image::RgbaImage, vec: &Vec<FastKeypoint>) {
+    let ctx = FastType::TYPE_9_16.get_context();
+
+    for k in vec {
+        let score = (k.score / 300) as u8;
+        let color = [score, 0, 122, 125];
+
+        let start_point = k.location;
+
+        let rotation_radians = Rad(k.moment.rotation);
+        let dist = (score * 5) as f64;
+
+        let end_point = (
+            start_point.0 as f32 + (dist * Rad::cos(rotation_radians)).round() as f32,
+            start_point.1 as f32 + (dist * Rad::sin(rotation_radians)).round() as f32
+        );
+
+        draw_line_segment_mut(
+            img,
+            (start_point.0 as f32, start_point.1 as f32),
+            end_point,
+            Rgba([0, 0, 0, 125])
+        );
+
+        // draw circle
+        ctx.offsets
+            .clone()
+            .into_iter()
+            .for_each(|(dx, dy)| {
+                img.get_pixel_mut((k.location.0 + dx) as u32, (k.location.1 + dy) as u32).0 = color;
+            });
+    }
+}
