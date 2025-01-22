@@ -1,0 +1,16 @@
+[package]
+name = "orbrs"
+version = "0.1.1"
+authors = ["patrickisroman qsbye"]
+edition = "2021"
+
+[profile.release]
+opt-level = 3
+
+[dependencies]
+image = "0.25.5"
+imageproc = "*"
+rand = "0.8.5"
+bitvector = "0.1.5"
+cgmath = "0.18.0"
+
