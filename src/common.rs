@@ -43,7 +43,11 @@ pub fn match_indices<T>(vec1: &Vec<T>, vec2: &Vec<T>) -> Vec<IndexMatch>
 where
     T: Matchable
 {
-    assert_eq!(vec1.len(), vec2.len());
+    // assert_eq!(vec1.len(), vec2.len());
+    if vec1.len() != vec2.len(){
+        let nil : Vec<IndexMatch> = vec![];
+        return nil;
+    }
 
     let mut index_vec = vec![];
     let len = vec1.len();
@@ -86,7 +90,11 @@ where
     T: Matchable,
     T: Copy
 {
-    assert!(n <= vec.len());
+    if n>vec.len(){
+        let nil : Vec<T> = vec![];
+        return nil;
+    }
+    // assert!(n <= vec.len());
 
     let mut maximal_keypoints:Vec<T> = vec![];
     for i in 1..vec.len() - 1 {

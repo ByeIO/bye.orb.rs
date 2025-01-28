@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["brief","match_brief","orb"],"struct":["Brief"]};
